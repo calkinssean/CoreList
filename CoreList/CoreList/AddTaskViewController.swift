@@ -8,7 +8,7 @@
 
 import UIKit
 
-class AddTaskViewController: UIViewController {
+class AddTaskViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var addedTaskTextField: UITextField!
     
@@ -16,6 +16,16 @@ class AddTaskViewController: UIViewController {
         super.viewDidLoad()
         
     }
+    
+    func textFieldDidBeginEditing(textField: UITextField) {
+        addedTaskTextField.becomeFirstResponder()
+    }
+    
+    func textFieldShouldReturn(textField: UITextField) -> Bool {
+        addedTaskTextField.resignFirstResponder()
+        return true
+    }
+    
     
     @IBAction func addTaskTapped(sender: BorderButton) {
         if addedTaskTextField.text == "" {

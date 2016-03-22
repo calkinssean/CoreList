@@ -81,6 +81,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.restoreSearchBar("")
     }
     
+    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
+        self.becomeFirstResponder()
+    }
+    
     //MARK: Helper Methods
     
     func restoreSearchBar(searchText: String) {
