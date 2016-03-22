@@ -21,13 +21,37 @@
                                 <rect key="frame" x="0.0" y="108" width="600" height="492"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Task Cell" id="lcB-6I-1ww">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="Task Cell" id="lcB-6I-1ww" customClass="TaskTableViewCell" customModule="CoreList" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="600" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="lcB-6I-1ww" id="b0e-SO-fm9">
                                             <rect key="frame" x="0.0" y="0.0" width="600" height="43.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DTA-CF-hVw">
+                                                    <rect key="frame" x="8" y="0.0" width="42" height="20.5"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LpD-cW-3Qg">
+                                                    <rect key="frame" x="8" y="26" width="35.5" height="17"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                    <color key="textColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="DTA-CF-hVw" firstAttribute="top" secondItem="b0e-SO-fm9" secondAttribute="top" id="3q1-US-I6T"/>
+                                                <constraint firstItem="DTA-CF-hVw" firstAttribute="leading" secondItem="b0e-SO-fm9" secondAttribute="leading" constant="8" id="SdC-I7-xPw"/>
+                                                <constraint firstAttribute="bottom" secondItem="LpD-cW-3Qg" secondAttribute="bottom" id="cVo-ni-MfC"/>
+                                                <constraint firstItem="LpD-cW-3Qg" firstAttribute="leading" secondItem="b0e-SO-fm9" secondAttribute="leading" constant="8" id="z1n-xv-b2J"/>
+                                            </constraints>
                                         </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="createdDateLabel" destination="LpD-cW-3Qg" id="rRC-Ae-OZp"/>
+                                            <outlet property="taskNameLabel" destination="DTA-CF-hVw" id="xZL-vN-AgE"/>
+                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
@@ -35,7 +59,7 @@
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="FHl-oK-Se5"/>
                                 </connections>
                             </tableView>
-                            <searchBar contentMode="redraw" showsCancelButton="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YMq-OC-c7f">
+                            <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="YMq-OC-c7f">
                                 <rect key="frame" x="0.0" y="64" width="600" height="44"/>
                                 <textInputTraits key="textInputTraits"/>
                                 <scopeButtonTitles>
@@ -61,76 +85,18 @@
                     <navigationItem key="navigationItem" id="Cbm-q4-anK">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="zfg-tP-H7W">
                             <connections>
-                                <segue destination="meq-5s-Ix8" kind="show" id="fWn-tx-HS6"/>
+                                <action selector="addTask:" destination="BYZ-38-t0r" id="PI3-MW-TTi"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="searchBar" destination="YMq-OC-c7f" id="ofx-GG-oZ9"/>
-                        <outlet property="taskTableView" destination="ixP-ny-8Ti" id="CLU-b5-qOY"/>
+                        <outlet property="searchBar" destination="YMq-OC-c7f" id="u23-qB-9fK"/>
+                        <outlet property="taskTableView" destination="ixP-ny-8Ti" id="QqO-Oh-EJB"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1057" y="245"/>
-        </scene>
-        <!--Add Task View Controller-->
-        <scene sceneID="UHx-7W-tqj">
-            <objects>
-                <viewController id="meq-5s-Ix8" customClass="AddTaskViewController" customModule="CoreList" customModuleProvider="target" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="YAX-l4-ud0"/>
-                        <viewControllerLayoutGuide type="bottom" id="yvJ-DE-vQ9"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="JDD-Wm-hP7">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CIH-Cx-FGr" customClass="BorderButton" customModule="CoreList" customModuleProvider="target">
-                                <rect key="frame" x="264" y="124" width="72" height="30"/>
-                                <state key="normal" title=" Add Task "/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
-                                        <real key="value" value="5"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
-                                        <color key="value" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
-                                        <real key="value" value="0.5"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="addTaskTapped:" destination="meq-5s-Ix8" eventType="touchUpInside" id="eGf-i8-q7w"/>
-                                </connections>
-                            </button>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Add a Task To Your To-Do List" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="64c-Og-RkX">
-                                <rect key="frame" x="8" y="72" width="584" height="30"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
-                                <connections>
-                                    <outlet property="delegate" destination="meq-5s-Ix8" id="7fH-GH-rFi"/>
-                                </connections>
-                            </textField>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="64c-Og-RkX" firstAttribute="top" secondItem="YAX-l4-ud0" secondAttribute="bottom" constant="8" id="MKb-Uq-osL"/>
-                            <constraint firstItem="64c-Og-RkX" firstAttribute="leading" secondItem="JDD-Wm-hP7" secondAttribute="leading" constant="8" id="b2l-2v-5lw"/>
-                            <constraint firstItem="CIH-Cx-FGr" firstAttribute="top" secondItem="64c-Og-RkX" secondAttribute="bottom" constant="22" id="ew7-bT-E4n"/>
-                            <constraint firstItem="CIH-Cx-FGr" firstAttribute="centerX" secondItem="JDD-Wm-hP7" secondAttribute="centerX" id="mFT-SE-QUc"/>
-                            <constraint firstAttribute="trailing" secondItem="64c-Og-RkX" secondAttribute="trailing" constant="8" id="wvQ-HJ-nAk"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <outlet property="addedTaskTextField" destination="64c-Og-RkX" id="eYY-4U-Yne"/>
-                        <segue destination="KRL-ju-DEb" kind="unwind" identifier="taskAddedSegue" unwindAction="newTaskAdded:" id="QSz-tG-xuY"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="UYc-P9-yXK" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <exit id="KRL-ju-DEb" userLabel="Exit" sceneMemberID="exit"/>
-            </objects>
-            <point key="canvasLocation" x="1764" y="245"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="eeu-ul-ICi">

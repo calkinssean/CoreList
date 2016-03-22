@@ -7,102 +7,143 @@
 //
 
 import UIKit
+import CoreData
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
-
-    @IBOutlet weak var searchBar: UISearchBar!
     
+    @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var taskTableView: UITableView!
     
-    var tasksArray = [Task]()
+    var formatter = NSDateFormatter()
     
-    var resultsArray = [Task]()
+    var nameString:String = ""
     
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        
-//    }
+    var tasksArray = [NSManagedObject]()
     
-    override func viewWillAppear(animated: Bool) {
-        super.viewWillAppear(true)
-        self.resultsArray = self.tasksArray
-        self.taskTableView.reloadData()
+    var moc = DataController().managedObjectContext
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        formatter.dateFormat = "MMM/d/yyyy HH:mm:ss"
+        self.fetchTasks()
     }
     
-    //MARK: Unwind Segue, grabs new task from AddTaskViewController
-    
-    @IBAction func newTaskAdded (segue: UIStoryboardSegue) {
+    @IBAction func addTask(sender: AnyObject) {
         
-        if segue.identifier == "taskAddedSegue" {
-            let unwindInfo = segue.sourceViewController as! AddTaskViewController
-            let t = Task()
-            if let taskName = unwindInfo.addedTaskTextField.text {
-                t.name = taskName
+        let alertController = UIAlertController(title: "Add", message: "Add a task", preferredStyle: .Alert)
+        let saveAction = UIAlertAction(title: "Save", style: .Default) { (alertAction) -> Void in
+            if let textField = alertController.textFields?.first, let text = textField.text {
+                self.saveTask(text)
+                self.taskTableView.reloadData()
             }
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .Default) { (alertAction) -> Void in
+            print("Cancel Pressed")
+        }
+        
+        alertController.addTextFieldWithConfigurationHandler { (textField) -> Void in
+            if let name = textField.text {
+                self.nameString = name
+            }
+        }
+
+        alertController.addAction(saveAction)
+        alertController.addAction(cancelAction)
+        
+        self.presentViewController(alertController, animated: true, completion: nil)
+        
+    }
+    
+    func fetchTasks() {
+        
+        let fetchRequest = NSFetchRequest(entityName: "Task")
+        
+        let sortDescriptor = NSSortDescriptor(key: "created", ascending: false)
+        
+        fetchRequest.sortDescriptors = [sortDescriptor]
+        
+        do {
+            if let fetchResults = try self.moc.executeFetchRequest(fetchRequest) as? [NSManagedObject] {
+                
+                self.tasksArray = fetchResults
+                self.taskTableView.reloadData()
+            }
+        } catch {
             
-            self.tasksArray.append(t)
-            self.taskTableView.reloadData()
+        }
+    }
+    
+    func saveTask(name: String) {
+        
+        if let taskEntity = NSEntityDescription.entityForName("Task", inManagedObjectContext: self.moc) {
+            let task = NSManagedObject(entity: taskEntity, insertIntoManagedObjectContext: self.moc)
+            let date = NSDate()
+            task.setValue(name, forKey: "name")
+            task.setValue(date, forKey: "created")
+            task.setValue(false, forKey: "isCompleted")
+            let theDate = formatter.stringFromDate(date)
+            print("\n\n\n\n\n\(theDate)\n\n\n\n\n")
             
+            do {
+                
+                try self.moc.save()
+                print("I saved the task: \(task)")
+                
+                self.tasksArray.insert(task, atIndex: 0)
+                
+            } catch {
+                
+                print("I didn't save the task")
+                
+            }
         }
         
     }
-
-    //MARK: Table View Delegate Methods
+    
+    //MARK: -Table View Data Source
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let c = resultsArray[indexPath.row]
-        let cell = tableView.dequeueReusableCellWithIdentifier("Task Cell")!
-        cell.textLabel?.text = c.name
+        let cell = tableView.dequeueReusableCellWithIdentifier("Task Cell", forIndexPath: indexPath) as! TaskTableViewCell
+        let t = tasksArray[indexPath.row]
+        var dateCreatedVar = NSDate()
+        if let taskName = t.valueForKey("name") as? String {
+            cell.taskNameLabel.text = taskName
+        }
+        if let createdDate = t.valueForKey("created") as? NSDate {
+            let dateString = formatter.stringFromDate(createdDate)
+            cell.createdDateLabel.text = dateString
+            dateCreatedVar = createdDate
+        }
+        if self.minutesSinceCreated(dateCreatedVar) <= 120 {
+            cell.backgroundColor = UIColor.greenColor()
+        } else if self.minutesSinceCreated(dateCreatedVar) <= 300 {
+            cell.backgroundColor = UIColor.yellowColor()
+        } else {
+            cell.backgroundColor = UIColor.redColor()
+        }
         
+    
+
         return cell
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        return resultsArray.count
-        
+        return tasksArray.count
     }
     
-    //MARK: Search Bar Delegate Methods
-    
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
-        self.resultsArray.removeAll()
+    func minutesSinceCreated(createdDate: NSDate) -> NSTimeInterval {
         
-        for task in tasksArray {
-            if self.containsString(task.name, searchText: searchText) {
-                self.resultsArray.append(task)
-            }
-        }
-        self.taskTableView.reloadData()
-        self.restoreSearchBar(searchText)
-    }
-    
-    func searchBarCancelButtonClicked(searchBar: UISearchBar) {
-        self.restoreSearchBar("")
-    }
-    
-    func searchBarTextDidBeginEditing(searchBar: UISearchBar) {
-        self.becomeFirstResponder()
-    }
-    
-    //MARK: Helper Methods
-    
-    func restoreSearchBar(searchText: String) {
-        if searchText == "" {
-            self.searchBar.text = ""
-            self.resultsArray = self.tasksArray
-            self.taskTableView.reloadData()
-            self.searchBar.resignFirstResponder()
-        }
-    }
-    
-    func containsString(str: String, searchText: String) -> Bool {
+        let endDate = NSDate()
         
-        let lowercaseString = str.lowercaseString
-        let lowercaseSearchText = searchText.lowercaseString
+        let formatter = NSNumberFormatter()
         
-        return lowercaseString.hasPrefix(lowercaseSearchText)
+        formatter.maximumFractionDigits = 4
+        
+        let timeInterval: Double = endDate.timeIntervalSinceDate(createdDate);
+        let numberString = formatter.stringFromNumber(timeInterval)
+        print("elapsed Time: \(numberString!)")
+        return timeInterval
     }
     
 }
-
