@@ -11,8 +11,12 @@ import CoreData
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     
+    //MARK: - Outlets
+    
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var taskTableView: UITableView!
+    
+    //Refresh control object
     
     lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -20,6 +24,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
         return refreshControl
     }()
+    
+    //MARK: - Properties
     
     var formatter = NSDateFormatter()
     
@@ -31,6 +37,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var moc = DataController().managedObjectContext
     
+    //View controller life cycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         formatter.dateFormat = "MMM/d/yyyy hh:mm:ss"
@@ -40,6 +48,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     @IBAction func addTask(sender: AnyObject) {
+        
+        //Presents an alert controller that prompts you to create a new task
         
         let alertController = UIAlertController(title: "Add", message: "Add a task", preferredStyle: .Alert)
         let saveAction = UIAlertAction(title: "Save", style: .Default) { (alertAction) -> Void in
@@ -66,6 +76,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
     }
     
+    //MARK: - Loads the task array
+    
     func fetchTasks() {
         
         let fetchRequest = NSFetchRequest(entityName: "Task")
@@ -86,6 +98,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func saveTask(name: String) {
+        
+        // Creates a task entity and assigns values to it's properties
         
         if let taskEntity = NSEntityDescription.entityForName("Task", inManagedObjectContext: self.moc) {
             let task = NSManagedObject(entity: taskEntity, insertIntoManagedObjectContext: self.moc)
@@ -113,7 +127,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
     }
     
-    //MARK: -Search Bar Delegate Methods
+    //MARK: - Search Bar Delegate Methods
     
     func searchBarShouldBeginEditing(searchBar: UISearchBar) -> Bool {
         
@@ -134,12 +148,13 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         searchBar.becomeFirstResponder()
     }
     
+    
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
         
         self.searchResults.removeAll()
         
         for task in tasksArray {
-            // if the city starts with the letter "searchText" then put it in the results array
+            // if the task name starts with the letter "searchText" then put it in the search results
             if let taskName = task.valueForKey("name") as? String {
                 if self.containsString(taskName, searchText: searchText) {
                     self.searchResults.append(task)
@@ -151,7 +166,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.taskTableView.reloadData()
     }
     
-    //MARK: -Table View Delegate Methods
+    //MARK: - Table View Delegate Methods
     
     func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
         if editingStyle == .Delete {
@@ -164,6 +179,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             self.resetSearchArray()
         }
     }
+    
+    // Changes the bool value on task when cell row is selected
     
     func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
@@ -187,9 +204,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         
     }
     
-    //MARK: -Table View Data Source
+    //MARK: - Table View Data Source
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        // Setting up the cell
         let cell = tableView.dequeueReusableCellWithIdentifier("Task Cell", forIndexPath: indexPath) as! TaskTableViewCell
         let t = searchResults[indexPath.row]
         var dateCreatedVar = NSDate()
@@ -197,21 +216,24 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if let taskName = t.valueForKey("name") as? String {
             cell.taskNameLabel.text = taskName
         }
+        
         if let createdDate = t.valueForKey("created") as? NSDate {
             let dateString = formatter.stringFromDate(createdDate)
             cell.createdDateLabel.text = dateString
             dateCreatedVar = createdDate
         }
+        
         if let isCompleted:Bool = t.valueForKey("isCompleted") as? Bool {
             isComplete = isCompleted
         }
-        
+        // Changes cell background color based on the isComplete bool and how long since the task was created
         if isComplete == true {
             cell.backgroundColor = UIColor.lightGrayColor()
             cell.taskNameLabel.textColor = UIColor.whiteColor()
             cell.accessoryType = .Checkmark
         }
         if isComplete == false {
+            
             cell.accessoryType = .None
             cell.taskNameLabel.textColor = UIColor.blackColor()
             if self.secondsSinceCreated(dateCreatedVar) <= 120 {
@@ -231,6 +253,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     //MARK: - Helper Methods
+    
+    
+    // Returns and NSTimeInterval base on the time task was created vs current time
     
     func secondsSinceCreated(createdDate: NSDate) -> NSTimeInterval {
         
@@ -267,6 +292,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         self.taskTableView.reloadData()
     }
     
+    //Called when table view is dragged down. Sorts the array based on date created and reloads the data.
+    
     func handleRefresh(refreshControl: UIRefreshControl) {
         
         fetchTasks()
@@ -281,6 +308,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         taskTableView.reloadData()
         self.searchBar.resignFirstResponder()
     }
+    
+    // Compares search text to the task name
     
     func containsString(str: String, searchText: String) -> Bool {
         
