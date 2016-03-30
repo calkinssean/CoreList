@@ -20,7 +20,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: "handleRefresh:", forControlEvents: UIControlEvents.ValueChanged)
+        refreshControl.addTarget(self, action: #selector(handleRefresh), forControlEvents: UIControlEvents.ValueChanged)
         
         return refreshControl
     }()
@@ -47,11 +47,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         resetSearchArray()
     }
     
+    
+    //MARK: - Add task button
     @IBAction func addTask(sender: AnyObject) {
         
         //Presents an alert controller that prompts you to create a new task
         
         let alertController = UIAlertController(title: "Add", message: "Add a task", preferredStyle: .Alert)
+        
+        //Define save action
         let saveAction = UIAlertAction(title: "Save", style: .Default) { (alertAction) -> Void in
             if let textField = alertController.textFields?.first, let text = textField.text {
                 self.saveTask(text)
@@ -59,6 +63,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }
         }
         
+        //Define cancel action
         let cancelAction = UIAlertAction(title: "Cancel", style: .Default) { (alertAction) -> Void in
             print("Cancel Pressed")
         }
@@ -97,6 +102,8 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
     }
     
+    
+    //MARK: - Save task function
     func saveTask(name: String) {
         
         // Creates a task entity and assigns values to it's properties
@@ -276,7 +283,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             self.resetSearchArray()
         }
     }
-    
+    //Saves the task and reloads the table view
     func saveAndReloadData() {
         do {
             
